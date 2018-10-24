@@ -14,4 +14,26 @@ Understanding Gaussian Process is the basis for understanding PILCO. Here are so
 - [Machine Learning Summer School 2012](https://www.youtube.com/watch?v=BS4Wd5rwNwE)
 
 ## PILCO
+Let's start from pseudo code.
+
+**init**: Sample controller parameters $\theta \sim \mathcal{N}(\bm{0}, \mathcal{I})$. \
+**repeat** \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Apply random control signals and record data. \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Learn Gaussian Process dynamics model using all data. \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**repeat** \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Simulate system with current controller $\pi(\theta)$ and get expected cost $J^\pi(\theta)$. \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Improve controller paramters to $\theta^*$. \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**until** convergence \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**return** $\theta^*$ \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set controller parameters to $\theta^*$. \
+**until** task learned
+
+From the pseudo code, we can see there are three key components of PILCO:
+- Dynamics Model Learning
+- Policy Evaluation
+- Policy Improvement
+
+### Dynamics Model Learning
+
 

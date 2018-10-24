@@ -1,70 +1,60 @@
-<!DOCTYPE HTML>
-<html>
- <head>
-  <meta charset="utf-8"/>
-  <title>
-   Made with Remarkable!
-  </title>
-  <link href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/github.min.css" rel="stylesheet"/>
-  <style type="text/css">
-   body,table tr{background-color:#fff}table tr td,table tr th{border:1px solid #ccc;text-align:left;padding:6px 13px;margin:0}pre code,table,table tr{padding:0}hr,pre code{background:0 0}body{font:16px Helvetica,Arial,sans-serif;line-height:1.4;color:#333;word-wrap:break-word;padding:10px 15px}strong,table tr th{font-weight:700}h1{font-size:2em;margin:.67em 0;text-align:center}h2{font-size:1.75em}h3{font-size:1.5em}h4{font-size:1.25em}h1,h2,h3,h4,h5,h6{font-weight:700;position:relative;margin-top:15px;margin-bottom:15px;line-height:1.1}h1,h2{border-bottom:1px solid #eee}hr{height:0;margin:15px 0;overflow:hidden;border:0;border-bottom:1px solid #ddd}a{color:#4183C4}a.absent{color:#c00}ol,ul{padding-left:15px;margin-left:5px}ol{list-style-type:lower-roman}table tr{border-top:1px solid #ccc;margin:0}table tr:nth-child(2n){background-color:#aaa}table tr td :first-child,table tr th :first-child{margin-top:0}table tr td:last-child,table tr th :last-child{margin-bottom:0}img{max-width:100%}blockquote{padding:0 15px;border-left:4px solid #ccc}code,tt{margin:0 2px;padding:0 5px;white-space:nowrap;border:1px solid #eaeaea;background-color:#f8f8f8;border-radius:3px}pre code{margin:0;white-space:pre;border:none}.highlight pre,pre{background-color:#f8f8f8;border:1px solid #ccc;font-size:13px;line-height:19px;overflow:auto;padding:6px 10px;border-radius:3px}
-  </style>
- </head>
- <body>
-  <h1>
-   Understanding PILCO
-  </h1>
-  <p>
-   <a href="mailto:hjzh578@gmail.com">
-    Email
-   </a>
-   me if you have any question.
-  </p>
-  <h2>
-   Introduction
-  </h2>
-  <p>
-   PILCO is a famous model-based reinforcement learning algorithm, which leverages gaussian process to model robotic system. Model-based reinforcement learning algorithms are considered to be data-efficient as they optimize the controller policy via the prediction of consquential states following current policy, instead of exploiting data which only comes from interacting with environment. However, a big issue in model-based reinforcement learning is that humans actually can't get a "right" model of a dynamic system (think about Laplace's Daemon), owing to uncertainty introduced by noisy measurements,  unobservable internal properties of the dynamic system,  etc. in which case the model bias is inevitably introduced when people assume that the learned dynamics model sufficiently accurately resembles the real environment. To capture the uncertainty of models, PILCO uses Gaussian Process to model the dynamic system. Moreover, Gaussian Process can also take as input a distribution and output another distribution, so that we can keep uncertainty of models, prediction through the whole algorithm pipeline.
-  </p>
-  <p>
-   Gaussian Process is a very powerful machine learning tool, while it's also way less popular than neural networks in current robotics community, because it's way more analytically harder than neural networks while mathmatically easier. Owing to this, PILCO is also very hard to understand for a beginner like me. In this blog, I will derivate the whole framework of PILCO for my own learning purpose. I also hope that it can help other beginners like me to understand PILCO easier.
-  </p>
-  <p>
-   In this blog, I just assume you have a basic linear algebra and calculus and reinforcement learning background.
-  </p>
-  <h2>
-   Gaussian Process
-  </h2>
-  <p>
-   Understanding Gaussian Process is the basis for understanding PILCO. Here are some resources that introduce me to this field.
-   <br/>
-   -
-   <a href="http://www.gaussianprocess.org/gpml/chapters/RW.pdf">
-    Gaussian Process for Machine Learning
-   </a>
-   <br/>
-   -
-   <a href="http://gpss.cc/gpss18/day-1.html">
-    Gaussian Process Summer School 2018
-   </a>
-   <br/>
-   -
-   <a href="https://www.youtube.com/watch?v=BS4Wd5rwNwE">
-    Machine Learning Summer School 2012
-   </a>
-  </p>
-  <h2>
-   PILCO
-  </h2>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/highlight.min.js">
-  </script>
-  <script>
-   hljs.initHighlightingOnLoad();
-  </script>
-  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript">
-  </script>
-  <script type="text/javascript">
-   MathJax.Hub.Config({"showProcessingMessages" : false,"messageStyle" : "none","tex2jax": { inlineMath: [ [ "$", "$" ] ] }});
-  </script>
- </body>
-</html>
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-alpha/dist/katex.min.css" integrity="sha384-BTL0nVi8DnMrNdMQZG1Ww6yasK9ZGnUxL1ZWukXQ7fygA1py52yPp9W4wrR00VML" crossorigin="anonymous">
+        <style>
+/*--------------------------------------------------------------------------------------------- * Copyright (c) Microsoft Corporation. All rights reserved. * Licensed under the MIT License. See License.txt in the project root for license information. *--------------------------------------------------------------------------------------------*/ body { font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback"; font-size: 14px; padding: 0 26px; line-height: 22px; word-wrap: break-word; } #code-csp-warning { position: fixed; top: 0; right: 0; color: white; margin: 16px; text-align: center; font-size: 12px; font-family: sans-serif; background-color:#444444; cursor: pointer; padding: 6px; box-shadow: 1px 1px 1px rgba(0,0,0,.25); } #code-csp-warning:hover { text-decoration: none; background-color:#007acc; box-shadow: 2px 2px 2px rgba(0,0,0,.25); } body.scrollBeyondLastLine { margin-bottom: calc(100vh - 22px); } body.showEditorSelection .code-line { position: relative; } body.showEditorSelection .code-active-line:before, body.showEditorSelection .code-line:hover:before { content: ""; display: block; position: absolute; top: 0; left: -12px; height: 100%; } body.showEditorSelection li.code-active-line:before, body.showEditorSelection li.code-line:hover:before { left: -30px; } .vscode-light.showEditorSelection .code-active-line:before { border-left: 3px solid rgba(0, 0, 0, 0.15); } .vscode-light.showEditorSelection .code-line:hover:before { border-left: 3px solid rgba(0, 0, 0, 0.40); } .vscode-light.showEditorSelection .code-line .code-line:hover:before { border-left: none; } .vscode-dark.showEditorSelection .code-active-line:before { border-left: 3px solid rgba(255, 255, 255, 0.4); } .vscode-dark.showEditorSelection .code-line:hover:before { border-left: 3px solid rgba(255, 255, 255, 0.60); } .vscode-dark.showEditorSelection .code-line .code-line:hover:before { border-left: none; } .vscode-high-contrast.showEditorSelection .code-active-line:before { border-left: 3px solid rgba(255, 160, 0, 0.7); } .vscode-high-contrast.showEditorSelection .code-line:hover:before { border-left: 3px solid rgba(255, 160, 0, 1); } .vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before { border-left: none; } img { max-width: 100%; max-height: 100%; } a { text-decoration: none; } a:hover { text-decoration: underline; } a:focus, input:focus, select:focus, textarea:focus { outline: 1px solid -webkit-focus-ring-color; outline-offset: -1px; } hr { border: 0; height: 2px; border-bottom: 2px solid; } h1 { padding-bottom: 0.3em; line-height: 1.2; border-bottom-width: 1px; border-bottom-style: solid; } h1, h2, h3 { font-weight: normal; } h1 code, h2 code, h3 code, h4 code, h5 code, h6 code { font-size: inherit; line-height: auto; } table { border-collapse: collapse; } table > thead > tr > th { text-align: left; border-bottom: 1px solid; } table > thead > tr > th, table > thead > tr > td, table > tbody > tr > th, table > tbody > tr > td { padding: 5px 10px; } table > tbody > tr + tr > td { border-top: 1px solid; } blockquote { margin: 0 7px 0 5px; padding: 0 16px 0 10px; border-left-width: 5px; border-left-style: solid; } code { font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback"; font-size: 14px; line-height: 19px; } body.wordWrap pre { white-space: pre-wrap; } .mac code { font-size: 12px; line-height: 18px; } pre:not(.hljs), pre.hljs code > div { padding: 16px; border-radius: 3px; overflow: auto; } /** Theming */ pre code { color: var(--vscode-editor-foreground); } .vscode-light pre:not(.hljs), .vscode-light code > div { background-color: rgba(220, 220, 220, 0.4); } .vscode-dark pre:not(.hljs), .vscode-dark code > div { background-color: rgba(10, 10, 10, 0.4); } .vscode-high-contrast pre:not(.hljs), .vscode-high-contrast code > div { background-color: rgb(0, 0, 0); } .vscode-high-contrast h1 { border-color: rgb(0, 0, 0); } .vscode-light table > thead > tr > th { border-color: rgba(0, 0, 0, 0.69); } .vscode-dark table > thead > tr > th { border-color: rgba(255, 255, 255, 0.69); } .vscode-light h1, .vscode-light hr, .vscode-light table > tbody > tr + tr > td { border-color: rgba(0, 0, 0, 0.18); } .vscode-dark h1, .vscode-dark hr, .vscode-dark table > tbody > tr + tr > td { border-color: rgba(255, 255, 255, 0.18); } 
+</style>
+<style>
+/* Tomorrow Theme */ /* http://jmblog.github.com/color-themes-for-google-code-highlightjs */ /* Original theme - https://github.com/chriskempson/tomorrow-theme */ /* Tomorrow Comment */ .hljs-comment, .hljs-quote { color: #8e908c; } /* Tomorrow Red */ .hljs-variable, .hljs-template-variable, .hljs-tag, .hljs-name, .hljs-selector-id, .hljs-selector-class, .hljs-regexp, .hljs-deletion { color: #c82829; } /* Tomorrow Orange */ .hljs-number, .hljs-built_in, .hljs-builtin-name, .hljs-literal, .hljs-type, .hljs-params, .hljs-meta, .hljs-link { color: #f5871f; } /* Tomorrow Yellow */ .hljs-attribute { color: #eab700; } /* Tomorrow Green */ .hljs-string, .hljs-symbol, .hljs-bullet, .hljs-addition { color: #718c00; } /* Tomorrow Blue */ .hljs-title, .hljs-section { color: #4271ae; } /* Tomorrow Purple */ .hljs-keyword, .hljs-selector-tag { color: #8959a8; } .hljs { display: block; overflow-x: auto; color: #4d4d4c; padding: 0.5em; } .hljs-emphasis { font-style: italic; } .hljs-strong { font-weight: bold; }
+</style>
+<style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'HelveticaNeue-Light', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 id="understanding-pilco">Understanding PILCO</h1>
+<p><a href="mailto:hjzh578@gmail.com">Email</a> me if you have any question.</p>
+<h2 id="introduction">Introduction</h2>
+<p>PILCO is a famous model-based reinforcement learning algorithm, which leverages gaussian process to model robotic system. Model-based reinforcement learning algorithms are considered to be data-efficient as they optimize the controller policy via the prediction of consquential states following current policy, instead of exploiting data which only comes from interacting with environment. However, a big issue in model-based reinforcement learning is that humans actually can't get a &quot;right&quot; model of a dynamic system (think about Laplace's Daemon), owing to uncertainty introduced by noisy measurements,  unobservable internal properties of the dynamic system,  etc. in which case the model bias is inevitably introduced when people assume that the learned dynamics model sufficiently accurately resembles the real environment. To capture the uncertainty of models, PILCO uses Gaussian Process to model the dynamic system. Moreover, Gaussian Process can also take as input a distribution and output another distribution, so that we can keep uncertainty of models, prediction through the whole algorithm pipeline.</p>
+<p>Gaussian Process is a very powerful machine learning tool, while it's also way less popular than neural networks in current robotics community, because it's way more analytically harder than neural networks while mathmatically easier. Owing to this, PILCO is also very hard to understand for a beginner like me. In this blog, I will derivate the whole framework of PILCO for my own learning purpose. I also hope that it can help other beginners like me to understand PILCO easier.</p>
+<p>In this blog, I just assume you have a basic linear algebra and calculus and reinforcement learning background.</p>
+<h2 id="gaussian-process">Gaussian Process</h2>
+<p>Understanding Gaussian Process is the basis for understanding PILCO. Here are some resources that introduce me to this field.</p>
+<ul>
+<li><a href="http://www.gaussianprocess.org/gpml/chapters/RW.pdf">Gaussian Process for Machine Learning</a></li>
+<li><a href="http://gpss.cc/gpss18/day-1.html">Gaussian Process Summer School 2018</a></li>
+<li><a href="https://www.youtube.com/watch?v=BS4Wd5rwNwE">Machine Learning Summer School 2012</a></li>
+</ul>
+<h2 id="pilco">PILCO</h2>
+<p>Let's start from pseudo code.</p>
+<p><strong>init</strong>: Sample controller parameters <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>θ</mi><mo>∼</mo><mi mathvariant="script">N</mi><mo>(</mo><mstyle><mn mathvariant="bold-italic">0</mn></mstyle><mo separator="true">,</mo><mi mathvariant="script">I</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">\theta \sim \mathcal{N}(\bm{0}, \mathcal{I})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.14736em;">N</span></span><span class="mopen">(</span><span class="mord"><span class="mord"><span class="mord mathbf">0</span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.07382em;">I</span></span><span class="mclose">)</span></span></span></span>. <br>
+<strong>repeat</strong> <br>
+      Apply random control signals and record data. <br>
+      Learn Gaussian Process dynamics model using all data. <br>
+      <strong>repeat</strong> <br>
+            Simulate system with current controller <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>π</mi><mo>(</mo><mi>θ</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">\pi(\theta)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathit" style="margin-right:0.03588em;">π</span><span class="mopen">(</span><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="mclose">)</span></span></span></span> and get expected cost <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>J</mi><mi>π</mi></msup><mo>(</mo><mi>θ</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">J^\pi(\theta)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathit" style="margin-right:0.09618em;">J</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.664392em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathit mtight" style="margin-right:0.03588em;">π</span></span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="mclose">)</span></span></span></span>. <br>
+            
+Improve controller paramters to <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>θ</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">\theta^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord"><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>. <br>
+      <strong>until</strong> convergence <br>
+      <strong>return</strong> <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>θ</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">\theta^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord"><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span> <br>
+      Set controller parameters to <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mi>θ</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">\theta^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord"><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.688696em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span>. <br>
+<strong>until</strong> task learned</p>
+<p>From the pseudo code, we can see there are three key components of PILCO:</p>
+<ul>
+<li>Dynamics Model Learning</li>
+<li>Policy Evaluation</li>
+<li>Policy Improvement</li>
+</ul>
+<h3 id="dynamics-model-learning">Dynamics Model Learning</h3>
+
+    </body>
+    </html>
