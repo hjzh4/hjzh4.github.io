@@ -1,5 +1,5 @@
 # Understanding PILCO
-[Email](mailto:hjzh578@gmail.com) me if you have any question.
+[Email](mailto:hjzh578@gmail.com) me or fire an issue [here](https://github.com/hjzh4/hjzh4.github.io/issues) if you have any question.
 ## Introduction
 PILCO is a famous model-based reinforcement learning algorithm, which leverages gaussian process to model robotic system. Model-based reinforcement learning algorithms are considered to be data-efficient as they optimize the controller policy via the prediction of consquential states following current policy, instead of exploiting data which only comes from interacting with environment. However, a big issue in model-based reinforcement learning is that humans actually can't get a "right" model of a dynamic system (think about Laplace's Daemon), owing to uncertainty introduced by noisy measurements,  unobservable internal properties of the dynamic system,  etc. in which case the model bias is inevitably introduced when people assume that the learned dynamics model sufficiently accurately resembles the real environment. To capture the uncertainty of models, PILCO uses Gaussian Process to model the dynamic system. Moreover, Gaussian Process can also take as input a distribution and output another distribution, so that we can keep uncertainty of models, prediction through the whole algorithm pipeline.
 
@@ -35,5 +35,7 @@ From the pseudo code, we can see there are three key components of PILCO:
 - Policy Improvement
 
 ### Dynamics Model Learning
+In PILCO, the input of dynamics model is a vector $\overset\sim{x}:=[x_{(1)}^T, \cdots, x_{(D)}^T, u_{(1)}^T, \cdots, u_{(F)}^T]^T$, where vector $x\in \mathbb{R^D}$ is our observation of the dynamic system, vector $u \in \mathbb{R^F}$ is the control signal from controller, and the output of dynamics model is a vector $\Delta_t$ representing the increment of next state with reference to current state. 
 
+Predicting relavant state increment instead of absolute state can make the prediction more smooth as the difference of the state increment is very small. So in PILCO, we use $\Delta_t = f(\overset\sim{x_{t-1}}) + \epsilon$ to represent dynamic system. It is actually similar with Gaussian Process Regression, where we represent underlying true system dynamics as a laten function $f(\overset\sim{x_{t-1}})$ and represent uncertainty as $\epsilon$.
 
