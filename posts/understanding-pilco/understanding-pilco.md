@@ -75,5 +75,9 @@ var(f_* \mid \bm{y}) = var(z) = var(f_* + A\bm{y}) = var(f_*) + var(A\bm{y}) + c
 $$
 $$var(f_* \mid \bm{y}) = k(\overset\sim{x_*}, \overset\sim{x_*}) - K(\overset\sim{x_*}, \overset\sim{X})K(\overset\sim{X}, \overset\sim{X})^{-1}K(\overset\sim{X}, \overset\sim{x_*})$$
 
+### Policy Evaluation
+The target of the algorithm is to learn an optimal policy which minimizes the expected cost $J^\pi(\theta)=\sum_{t=0}^TE_{x_t}[c(x_t)], x_0 \sim \mathcal{N}(\mu_0,\Sigma_0)$ of following $\pi$ for $T$ steps, where $c(x_t)$ is the cost (negative reward) of being in state $x$ at time $t$. We assume that $\pi$ is a function parameterized by $\theta$. We also have $J^\pi(\theta)=\int_0^Tc(x_t)p(x_t)dx_t$ which means we need to compute $p(x_t), t=1, \cdots, T$. As we have showed how to compute $p(\Delta_{t-1}^a \mid \overset\sim{x_{t-1}})$ in the last section. And $\Delta_{t-1}^a=x_t^a-x_{t-1}^a+\epsilon, \epsilon \sim \mathcal{N}(0, \delta_\epsilon\mathcal{I})$, we can write following prediction equations:
+$$
 
+$$ 
 
