@@ -59,7 +59,8 @@ f_* \\
 Where $K(\overset\sim{X}, \overset\sim{x_*})$ is a $n \times 1$ vector computed from evaluation of covariance function.
 
 Having a prior distribution, we can get posterior distribution using math. Now I will go through this. Instead of using Bayesian Rules, I will show a smarter method to do this. We first define $z = f_* + A\bm{y}$, where $A = -K(\overset\sim{x_*}, \overset\sim{X})(K(\overset\sim{X}, \overset\sim{X}) + \delta_\epsilon^2\mathcal{I}))^{-1}$. Now, we have 
-$$cov(z, \bm{y}) = cov(f_*, \bm{y}) + cov(A\bm{y}, \bm{y}) = K(\overset\sim{x_*}, \overset\sim{X}) + Avar(\bm{y}) 
+$$
+cov(z, \bm{y}) = cov(f_*, \bm{y}) + cov(A\bm{y}, \bm{y}) = K(\overset\sim{x_*}, \overset\sim{X}) + Avar(\bm{y}) 
 = K(\overset\sim{x_*}, \overset\sim{X}) - K(\overset\sim{x_*}, \overset\sim{X})(K(\overset\sim{X}, \overset\sim{X}) + \delta_\epsilon^2\mathcal{I}))^{-1}(K(\overset\sim{X}, \overset\sim{X}) + \delta_\epsilon^2\mathcal{I}))
 =\bm{0} $$
 Therefore $z$ and $\bm{y}$ are uncorrelated and since they are jointly normal, they are independent. To compute conditional mean we have
@@ -76,7 +77,7 @@ $$
 $$var(f_* \mid \bm{y}) = k(\overset\sim{x_*}, \overset\sim{x_*}) - K(\overset\sim{x_*}, \overset\sim{X})K(\overset\sim{X}, \overset\sim{X})^{-1}K(\overset\sim{X}, \overset\sim{x_*})$$
 
 ### Policy Evaluation
-The target of the algorithm is to learn an optimal policy which minimizes the expected cost $J^\pi(\theta)=\sum_{t=0}^TE_{x_t}[c(x_t)], x_0 \sim \mathcal{N}(\mu_0,\Sigma_0)$ of following $\pi$ for $T$ steps, where $c(x_t)$ is the cost (negative reward) of being in state $x$ at time $t$. We assume that $\pi$ is a function parameterized by $\theta$. We also have $J^\pi(\theta)=\int_0^Tc(x_t)p(x_t)dx_t$ which means we need to compute $p(x_t), t=1, \cdots, T$. Here we have $\Delta_{t-1} = x_t - x_{t-1}+\epsilon, \epsilon \sim \mathcal{N}(\bm{0}, \Sigma_\epsilon), \Sigma_\epsilon = diag([\delta_{\epsilon_1}, \cdots, \delta_{\epsilon_D}])$, we can write following prediction equations:
+The target of the algorithm is to learn an optimal policy which minimizes the expected cost $J^\pi(\theta)=\sum_{t=0}^TE_{x_t}[c(x_t)], x_0 \sim \mathcal{N}(\mu_0,\Sigma_0)$ of following $\pi$ for $T$ steps (policy evaluation), where $c(x_t)$ is the cost (negative reward) of being in state $x$ at time $t$. We assume that $\pi$ is a function parameterized by $\theta$. We also have $J^\pi(\theta)=\int_0^Tc(x_t)p(x_t)dx_t$ which means we need to compute $p(x_t), t=1, \cdots, T$. Here we have $\Delta_{t-1} = x_t - x_{t-1}+\epsilon, \epsilon \sim \mathcal{N}(\bm{0}, \Sigma_\epsilon), \Sigma_\epsilon = diag([\delta_{\epsilon_1}, \cdots, \delta_{\epsilon_D}])$, we can write following prediction equations:
 $$
 p(x_t \mid x_{t-1}, \mu_{t-1}) = \mathcal{N}(x_t \mid \mu_t, \Sigma_t), \\
 \mu_t = x_{t-1} + \mathbb{E}_f[\Delta_{t-1}], \\
@@ -89,4 +90,7 @@ $$
 Assuming we already have $p(x_{t-1})$, we need to do following things:
 - Compute $p(x_{t-1}, u_{t-1})$. As the the control $u_{t-1} = \pi(x_{t-1}, \theta)$ is a function of the state $x_{t-1}$, we compute the mean $\mu_{u}$ and  
 
+## REFERENCES
+- [PILCO: A Model-Based and Data-Efficient Approach to Policy Search](https://spiral.imperial.ac.uk/bitstream/10044/1/11585/4/icml2011_final.pdf)
+- [Efficient Reinforcement Learning using Gaussian Processes](https://pdfs.semanticscholar.org/c9f2/1b84149991f4d547b3f0f625f710750ad8d9.pdf)
 
