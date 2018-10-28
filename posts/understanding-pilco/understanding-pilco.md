@@ -30,7 +30,7 @@ Improve controller paramters to $\theta^*$. \
 
 From the pseudo code, we can see there are three key components of PILCO:
 - Dynamics Model Learning
-- Policy Evaluation
+- Approximate Inference for Long-Term Predictions
 - Policy Improvement
 
 ### Dynamics Model Learning
@@ -74,9 +74,9 @@ $$
 $$
 var(f_* \mid \bm{y}) = var(z) = var(f_* + A\bm{y}) = var(f_*) + var(A\bm{y}) + cov(f_*, A\bm{y}) + cov(A\bm{y}, f_*) = var(f_*) + Avar(\bm{y})A^T + cov(\bm{y}, f_*)A^T + Acov(f_*, \bm{y})
 $$
-$$var(f_* \mid \bm{y}) = k(\overset\sim{x_*}, \overset\sim{x_*}) - K(\overset\sim{x_*}, \overset\sim{X})K(\overset\sim{X}, \overset\sim{X})^{-1}K(\overset\sim{X}, \overset\sim{x_*})$$
+$$var(f_* \mid \bm{y}) = k(\overset\sim{x_*}, \overset\sim{x_*}) - K(\overset\sim{x_*}, \overset\sim{X})K(\overset\sim{X}, \overset\sim{X} + \delta_{\epsilon}^2\mathcal{I})^{-1}K(\overset\sim{X}, \overset\sim{x_*})$$
 
-### Policy Evaluation
+### Approximate Inference for Long-Term Predictions
 The target of the algorithm is to learn an optimal policy which minimizes the expected cost $J^\pi(\theta)=\sum_{t=0}^TE_{x_t}[c(x_t)], x_0 \sim \mathcal{N}(\mu_0,\Sigma_0)$ of following $\pi$ for $T$ steps (policy evaluation), where $c(x_t)$ is the cost (negative reward) of being in state $x$ at time $t$. We assume that $\pi$ is a function parameterized by $\theta$. We also have $J^\pi(\theta)=\int_0^Tc(x_t)p(x_t)dx_t$ which means we need to compute $p(x_t), t=1, \cdots, T$. Here we have $\Delta_{t-1} = x_t - x_{t-1}+\epsilon, \epsilon \sim \mathcal{N}(\bm{0}, \Sigma_\epsilon), \Sigma_\epsilon = diag([\delta_{\epsilon_1}, \cdots, \delta_{\epsilon_D}])$, we can write following prediction equations:
 $$
 p(x_t \mid x_{t-1}, \mu_{t-1}) = \mathcal{N}(x_t \mid \mu_t, \Sigma_t), \\
@@ -98,13 +98,47 @@ $$
 $$
 Here we can see $\mathbb{E}_{f}[f(x_{t-1}) \mid x_{t-1}]$ is a predictive distribution at determinent input which we already know in last section. Plugging the result we have from the last section, we have:
 $$
-\mu_{t} = E_{x_{t-1}}[m_f(x_{t-1}) \mid \mu, \Sigma] = \int m_f(x_{t-1})\mathcal{N}(x_{t-1} \mid \mu, \Sigma)dx_{t-1} = \beta q
+\mu_{t} = E_{x_{t-1}}[m_f(x_{t-1}) \mid \mu, \Sigma] = \int m_f(x_{t-1})\mathcal{N}(x_{t-1} \mid \mu, \Sigma)dx_{t-1} = \int K(x_{t-1}, X)(K(X, X) + \delta_{\epsilon}^2\mathcal{I}))^{-1}\bm{y}\mathcal{N}(x_{t-1} \mid \mu, \Sigma)dx_{t-1} \\ 
+= \int K(x_{t-1}, X)\bm{\beta}\mathcal{N}(x_{t-1} \mid \mu, \Sigma)dx_{t-1} \\
+= \bm{\beta}^T \int K(x_{t-1}, X)^T \mathcal{N}(x_{t-1} \mid \mu, \Sigma)dx_{t-1} \\
+= \bm{\beta}^T\bm{q}
 $$
+where $\bm{\beta} := (K(X, X) + \delta_\epsilon^2\mathcal{I})^{-1}\bm{y}$, $\bm{q} = [q_1, \cdots, q_n]^T \in \mathbb{R}^n$ with 
+$$
+q_i := \int k(x_{t-1}, x_i)\mathcal{N}(x_{t-1}|\mu, \Sigma)dx_{t-1} \\
+= \alpha^2|\Sigma\Lambda^{-1} + I|^{-\frac{1}{2}}exp(-\frac{1}{2}(x_{i} - \mu)^T(\Sigma + \Lambda)^{-1}(x_i - \mu))
+$$
+Now let's take a look at variance. According to law of total variance we have
+$$
+\delta_{t}^2 = var_{x_{t-1}, f}[f(x_{t-1}) \mid \mu, \Sigma] = \mathbb{E}_{x_{t-1}}[var_f[f(x_{t-1}) \mid x_{t-1}] \mid \mu, \Sigma] + var_{x_{t-1}}[\mathbb{E}_f[f(x_{t-1})\mid x_{t-1}] \mid \mu, \Sigma] \\
+= \mathbb{E}_{x_{t-1}}[\delta_f^2(x_{t-1}) \mid \mu, \Sigma] + (\mathbb{E}_{x_{t-1}}[m_f(x_{t-1})^2 \mid \mu, \Sigma] - \mathbb{E}_{x_{t-1}}[m_f(x_{t-1}) \mid \mu, \Sigma]^2)
+$$
+Using the result from last section for $\delta_f$ and $m_{f}$, we have
+$$
+\delta_t^2 = \int k(x_{t-1}, x_{t-1}) - K(x_{t-1}, X)(K(X, X) + \delta_\epsilon^2\mathcal{I})^{-1}K(X, x_{t-1})p(x_{t-1})dx_{t-1} + \int K(x_{t-1}, X)\beta\beta^TK(X, x_{t-1})p(x_{t-1})dx_{t-1} - (\bm{\beta}^T\bm{q})^2
+$$
+Equation above can be computed analytically. 
 
+Awesome! Now we know how to solve univariate predictions on uncertain input. Now we assume the target dimension is $E$. In the multivariate case, the predictive mean vector $\bm{\mu}_{t-1}$ is the coolection of all independently predicted means computed according to result equation in univariate predictions case.
+$$
+\bm\mu_{t-1} \mid \bm{\mu}, \bm{\Sigma} = [\bm\beta_1^T\bm{q}_1, \cdots, \bm\beta_E^T\bm{q}_E]^T
+$$
+However unlike predicting at deterministic inputs where all the target dimensions are independent, the target dimensions now covary, so the corresponding predictive covariance matrix
+$$
+\bm{\Sigma} \mid \bm{\mu}, \bm{\Sigma} = \begin{bmatrix}var_{f, x_{t-1}}[f_1(x_{t-1}) \mid \bm{\mu}, \bm{\Sigma}] & \cdots & cov_{f, x_{t-1}}[f_1(x_{t-1}), f_E(x_{t-1}) \mid \bm\mu, \bm\Sigma] \\
+\vdots & \ddots & \vdots \\
+cov_{f, x_{t-1}}[f_E(x_{t-1}), f_1(x_{t-1}) \mid \bm\mu, \bm\Sigma] & \cdots &  var_{f, x_{t-1}}[f_E(x_{t-1}) \mid \bm{\mu}, \bm{\Sigma}] \end{bmatrix}
+$$
+is no longer diagonal. The cross-covariances are given by
+$$
+cov_{f, x_{t-1}}[f_a(x_{t-1}), f_b(x_{t-1}) \mid \bm\mu, \bm\Sigma] = \mathbb{E}_{f, x_{t-1}}[f_a(x_{t-1})f_b({x_{t-1}}) \mid \bm{\mu}, \bm{\Sigma}] - \bm\mu_{a}(x_{t-1})\bm\mu_{b}(x_{t-1}). 
+$$
+The equation above can also be analytically computed. So that we can get the exact mean $\bm\mu_{t}$ and the exact covariance $\bm\Sigma_{t}$ of the generally non-Gaussian predictive distribution $p(f(x_{t-1}) \mid \bm\mu, \bm\Sigma)$.
 
-Assuming we already have $p(x_{t-1})$, we need to do following things:
-- Compute $p(x_{t-1}, u_{t-1})$. As the the control $u_{t-1} = \pi(x_{t-1}, \theta)$ is a function of the state $x_{t-1}$, we compute the mean $\mu_{u}$ and  
-
+Now let's come back to approximate inference for long-term predictions in PILCO. This step can be decomposed into following 3 substeps:
+- A distribution $p(u_{t-1}) = p(\pi(x_{t-1}))$ over actions is computed when mapping $p(x_{t-1})$ through the policy $\pi$.
+- A joint Gaussian distribution $p(x_{t-1}, u_{t-1}) = p(x_{t-1}, \pi(x_{t-1}))$ is computed.
+- The distribution $p(x_t)$ is computed by applying the results we just got.
 ## REFERENCES
 - [PILCO: A Model-Based and Data-Efficient Approach to Policy Search](https://spiral.imperial.ac.uk/bitstream/10044/1/11585/4/icml2011_final.pdf)
 - [Efficient Reinforcement Learning using Gaussian Processes](https://pdfs.semanticscholar.org/c9f2/1b84149991f4d547b3f0f625f710750ad8d9.pdf)
