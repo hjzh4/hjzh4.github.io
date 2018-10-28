@@ -139,6 +139,18 @@ Now let's come back to approximate inference for long-term predictions in PILCO.
 - A distribution $p(u_{t-1}) = p(\pi(x_{t-1}))$ over actions is computed when mapping $p(x_{t-1})$ through the policy $\pi$.
 - A joint Gaussian distribution $p(x_{t-1}, u_{t-1}) = p(x_{t-1}, \pi(x_{t-1}))$ is computed.
 - The distribution $p(x_t)$ is computed by applying the results we just got.
+
+Now let's consider about computation of a distribution over actions. First of all, the policy itself should have two properties:
+- For a state distribution $p(x)$ we need to be able to compute a corresponding distribution over actions $p(u) = p(\pi(x))$.
+- In a realistic application, the policy must be able to deal with constrained control signals.
+
+During the forward simulation, the states are given by probability distribution $p(x_t), t = 0, \cdots, T$. The probability distribution of the state $x_t$ induces a predictive distribution over actions, even if the policy is deterministic. To get constrained control signals, we assume the control limits are such that $\bm{u} \in [-\bm{u}_{max}, \bm{u}_{max}]$. Let us consider a preliminary policy $\overset\sim{\pi}$ with an unconstrained amplitude. To model the control limits coherently during simulation, we squash that preliminary policy $\overset\sim{\pi}$ through a bounded and differentiable squashing function, e.g. sine, logistic, cumulative Gaussian. However there are sevel advantages for using sine function. One advantageous property of the sine is that it allows for an analytic computation of the mean and the covariance of $p(\overset\sim{\pi}(\bm{x}))$ if $\overset\sim{\pi}(\bm{x})$ is Gaussian distributed so that we can use this mean and covariance to approximate the predictive distribution with a Gaussian distribution.
+
+Following, I will show you one possible representation of the preliminary policy $\overset\sim\pi$ that allow for a closed-form computation of mean and the covariance of $p(\overset\sim{\pi}(\bm{x}))$ when the state $\bm{x}$ is Gaussian distributed which is a nonlinear representation of $\overset\sim{\pi}$, namely radial basis function (RBF) network.
+
+#### RBF Network
+
+
 ## REFERENCES
 - [PILCO: A Model-Based and Data-Efficient Approach to Policy Search](https://spiral.imperial.ac.uk/bitstream/10044/1/11585/4/icml2011_final.pdf)
 - [Efficient Reinforcement Learning using Gaussian Processes](https://pdfs.semanticscholar.org/c9f2/1b84149991f4d547b3f0f625f710750ad8d9.pdf)
