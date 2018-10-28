@@ -85,7 +85,7 @@ p(x_t \mid x_{t-1}, \mu_{t-1}) = \mathcal{N}(x_t \mid \mu_t, \Sigma_t), \\
 $$
 To compute $p(x_t)$, we need this
 $$
-p(x_t) = \int\int p(x_t \mid x_{t-1}, u_{t-1})p(u_{t-1}, x_{t-1})dx_{t-1}du_{t-1}=\int\int p(x_t \mid x_{t-1}, u_{t-1})p(u_{t-1} \mid x_{t-1})p(x_{t-1})dx_{t-1}du_{t-1}, t=1, \cdots, T
+p(x_t) = \iint p(x_t \mid x_{t-1}, u_{t-1})p(u_{t-1}, x_{t-1})dx_{t-1}du_{t-1}=\iint p(x_t \mid x_{t-1}, u_{t-1})p(u_{t-1} \mid x_{t-1})p(x_{t-1})dx_{t-1}du_{t-1}, t=1, \cdots, T
 $$
 Here, comparing with the derivation we did in last section, we actually need to predict distribution of $x_t$ at uncertain input $(x_{t-1}, u_{t-1})$ as when we propagate state through GP models, we propagate distribution of state so we can keep uncertainty of state through GP. As stated in original paper, this predictive distribution is not Gaussian and unimodal. However, we can approximate the predictive distribution by a Gaussian that possesses the same mean and variance. From now on, I will show how to compute mean and variance. However I want to start with a simple case first, so we can go through the math easily. As we can see in the last section, the input to our GP dynamics model should be a distribution over $(x_{t-1}, u_{t-1})$. However, I want to show how we can predict $p(x_t)$ given $p(x_{t-1})$ first. Then it would be easy to extend this case to having $u$ which is the control signal. Moreover, let's start with univariate predictions which is to predict one dimension of $x_t \in \mathbb{R}^D$ given an uncertain $x_{t-1} \in \mathbb{R}^D$. Now let's consider this problem, predicting a function value $f(x_{t-1}), f: \mathbb{R}^D \rightarrow \mathbb{R}$, at an **uncertain** previous state input $x_{t-1} \sim \mathcal{N}(\mu, \Sigma)$, where $f \sim GP$ with an $SE$ covariance function plus a noise covariance function. Let's write this predictive distribution as:
 $$
@@ -93,7 +93,7 @@ p(x_t | \mathcal{N}(x_{t-1} \mid \mu, \Sigma)) = p(f(x_{t-1})|\mu, \Sigma) = \in
 $$
 Genrally, the predictive distribution in equation above cannot be computed analytically while we can compute the mean and variance of this distribution and use a Gaussian distribution with the same mean and variance to approximate it. To compute the mean $\mu_t$, we have:
 $$
-\mu_t = \int \int f(x_{t-1})p(f, x_{t-1})d(f, x_{t-1}) = \int \int f(x_{t-1})p(f,x_{t-1})dfdx_{t-1} = \int \mathbb{E}[f(x_{t-1}) \mid x_{t-1}]p(x_{t-1})dx_{t-1} \\
+\mu_t = \iint f(x_{t-1})p(f, x_{t-1})d(f, x_{t-1}) = \iint f(x_{t-1})p(f,x_{t-1})dfdx_{t-1} = \int \mathbb{E}[f(x_{t-1}) \mid x_{t-1}]p(x_{t-1})dx_{t-1} \\
 = \mathbb{E}_{x_{t-1}}[\mathbb{E}_{f}[f(x_{t-1}) \mid x_{t-1}] \mid \mu, \Sigma]
 $$
 Here we can see $\mathbb{E}_{f}[f(x_{t-1}) \mid x_{t-1}]$ is a predictive distribution at determinent input which we already know in last section. Plugging the result we have from the last section, we have:
