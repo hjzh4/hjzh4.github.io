@@ -149,6 +149,15 @@ During the forward simulation, the states are given by probability distribution 
 Following, I will show you one possible representation of the preliminary policy $\overset\sim\pi$ that allow for a closed-form computation of mean and the covariance of $p(\overset\sim{\pi}(\bm{x}))$ when the state $\bm{x}$ is Gaussian distributed which is a nonlinear representation of $\overset\sim{\pi}$, namely radial basis function (RBF) network.
 
 #### RBF Network
+The preliminary RBF policy is given by
+$$
+\overset\sim{\pi}(x_{*}) = \Sigma_{s=1}^N\beta_sk_\pi(x_s, x_*)=\bm\beta_\pi^Tk_\pi(\bm{X}_\pi,x_*),
+$$
+where $x_*$ is a test input, $k_\pi$ is a kernel function, and $\bm\beta_\pi:=(K_\pi+\delta_\pi^2\mathcal{I})^{-1}\bm{y}_\pi$, $\bm{X}_\pi and \bm{y}_\pi$ are training data. This is the familiar with what we have seen before and we can see this RBF network as a deterministic GP, which means $var_{\pi}=0$. Then we can use the results we got before to compute this predictive distribution and use a Gaussian distribution with exactly the same mean and variance to approximate this predictive distribution. Then we need to squash the preliminary policy through the sine and compute an approximate Gaussian distribution of $p(\bm{u}_{max}sin(\overset\sim{\pi}(x_{t-1})))$ which can be also computed analytically. Then we will need to compute the joint distribution $p(\bm{x}_{t-1}, \bm{u}_{t-1})=p(x_{t-1}, \pi(x_{t-1}))$. It is also computed in two steps. First, we compute the distribution $p(x_{t-1}, \overset\sim{\pi}(x_{t-1}))$. Then we compute an approximate fully joint Gaussian distribution $p(x_{t-1}, \overset\sim\pi(x_{t-1}), \bm{u}_{max}sin(\overset\sim\pi(x_{t-1})))$ and marginalize $\overset\sim{\pi}(x_{t-1})$ out to obtain the desired joint distribution $p(x_{t-1}, u_{t-1})$.
+
+Use above results we can compute the predictive state distribution $p(x_{t}), t=1, \cdots, T$ iteratively. Then we can also compute the expective cumulative cost of following these steps.
+
+### Policy Learning
 
 
 ## REFERENCES
