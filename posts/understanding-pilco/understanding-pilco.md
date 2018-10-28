@@ -158,7 +158,10 @@ where $x_*$ is a test input, $k_\pi$ is a kernel function, and $\bm\beta_\pi:=(K
 Use above results we can compute the predictive state distribution $p(x_{t}), t=1, \cdots, T$ iteratively. Then we can also compute the expective cumulative cost of following these steps.
 
 ### Policy Learning
-
+Here we need to use a gradient-based policy search method to optimize the policy parameters. This means, we aim to find a parameterized policy $\pi^*$ from a class of policies $\Pi$ with
+$$
+\pi^* \in arg min_{\pi \in \Pi}J^{\pi_\psi}(x_0).
+$$
 
 ## REFERENCES
 - [PILCO: A Model-Based and Data-Efficient Approach to Policy Search](https://spiral.imperial.ac.uk/bitstream/10044/1/11585/4/icml2011_final.pdf)
