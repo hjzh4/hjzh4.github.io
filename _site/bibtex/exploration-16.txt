@@ -1,6 +1,0 @@
-@article{Tang2016exploration,
-author = {Tang, Haoran and Houthooft, Rein and Foote, Davis and Stooke, Adam and Chen, Xi and Duan, Yan and Schulman, John and De Turck, Filip and Abbeel, Pieter},
-title = {\#Exploration: A Study of Count-Based Exploration for Deep Reinforcement Learning},
-journal={arXiv preprint arXiv:1611.04717},
-year = {2016}
-}

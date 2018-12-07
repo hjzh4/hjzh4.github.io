@@ -1,7 +1,0 @@
-@MastersThesis{Houthooft:MScthesis,
-author    =     {Rein Houthooft},
-title     =     {Adaptive Geometric Routing for the {Internet} Backbone},
-school    =     {Ghent University},
-address   =     {Belgium},
-year      =     {2014},
-}

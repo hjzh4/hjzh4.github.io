@@ -1,9 +1,0 @@
-@INPROCEEDINGS{6838308, 
-author={De Backere, F. and Hanssens, B. and Heynssens, R. and Houthooft, R. and Zuliani, A. and Verstichel, S. and Dhoedt, B. and De Turck, F.}, 
-booktitle={Network Operations and Management Symposium (NOMS), 2014 IEEE}, 
-title={Design of a security mechanism for {RESTful} {Web} Service communication through mobile clients}, 
-year={2014}, 
-month={May}, 
-pages={1-6}, 
-keywords={Web services;mobile computing;security of data;REST architecture;RESTful Web service communication;TLS based system;mobile clients devices;representational state transfer;security mechanism design;transport layered security;Authentication;Cryptography;Databases;Protocols;Servers;Web services}, 
-doi={10.1109/NOMS.2014.6838308},}

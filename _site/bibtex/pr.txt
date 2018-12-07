@@ -1,8 +1,0 @@
-@article{Houthooft2015pr,
-author = {Houthooft, Rein and De Turck, Filip}
-title = {Integrated Inference and Learning of Neural Factors in Structural Support Vector Machines},
-journal = {Pattern Recognition},
-volume = {59},
-pages = {292--301},
-year = {2016}
-}

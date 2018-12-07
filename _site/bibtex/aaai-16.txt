@@ -1,9 +1,0 @@
-@inproceedings{Houthooft-aaai-2016,
-author={Houthooft, Rein and De Boom, Cedric and Verstichel, Stijn and Ongenae, Femke and De Turck, Filip},
-title={Structured Output Prediction for Semantic Perception in Autonomous Vehicles},
-booktitle={Proceedings of the 30th AAAI Conference on Artificial Intelligence},
-address={Phoenix, Arizona, USA},
-days={12},
-month={feb},
-year={2016}
-}
